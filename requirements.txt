@@ -3,3 +3,4 @@ pytesseract
 python-dotenv
 Pillow
 psycopg2-binary
+openai
