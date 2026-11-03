@@ -1,8 +1,8 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -14,90 +14,79 @@
         {% endblock %}
     </title>
 
-   <link rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
-
-<body >
+<body>
 
 <div class="app-layout">
 
-
     <!-- SIDEBAR -->
-
     <aside class="sidebar">
 
         <div class="logo">
-
             💰 SmartExpense
-
         </div>
-
 
         <nav class="sidebar-nav">
 
             <a href="/" class="nav-link">
-
                 🏠
                 <span>Dashboard</span>
-
             </a>
-
 
             <a href="/expenses" class="nav-link">
-
                 💳
                 <span>Expenses</span>
-
             </a>
-
 
             <a href="/budget" class="nav-link">
-
                 💵
                 <span>Budget</span>
-
             </a>
-
 
             <a href="/analytics" class="nav-link">
-
                 📊
                 <span>Analytics</span>
-
             </a>
 
-        <a href="/ai-analysis" class="nav-link">
-            🤖 AI Assistant
-        </a>
+            <a href="/ai-analysis" class="nav-link">
+                🤖
+                <span>AI Analysis</span>
+            </a>
+
+            <a href="/chat" class="nav-link">
+                💬
+                <span>AI Assistant</span>
+            </a>
 
             <a href="/settings" class="nav-link">
-
                 ⚙️
                 <span>Settings</span>
-
-        <div class="dashboard-card ai-card">
-
-    <h2>🤖 AI Financial Assistant</h2>
-
-    <p>
-        Ask AI anything about your expenses,
-        budget, and spending.
-    </p>
-
-    <a href="/chat" class="nav-link">
-        Open AI Assistant →
-    </a>
-
-</div>
+            </a>
 
         </nav>
 
+        <!-- AI ASSISTANT CARD -->
+        <div class="dashboard-card ai-card">
 
+            <h2>🤖 Smart Financial Assistant</h2>
+
+            <p>
+                Get help understanding your expenses,
+                budget, and spending habits.
+            </p>
+
+            <a href="/chat" class="nav-link">
+                Open Assistant →
+            </a>
+
+        </div>
+
+        <!-- SIDEBAR FOOTER -->
         <div class="sidebar-bottom">
 
             <p>
@@ -105,23 +94,17 @@
             </p>
 
             <small>
-                AI + Cloud Finance Platform
+                Personal Finance Management Platform
             </small>
 
         </div>
-        
 
     </aside>
 
-
-
     <!-- MAIN AREA -->
-
     <main class="main-area">
 
-
         <!-- TOP BAR -->
-
         <header class="topbar">
 
             <div>
@@ -138,32 +121,24 @@
 
             </div>
 
-
             <div class="user-area">
-                <a href="/profile" class="nav-link">
-                        👤
-                
-                <span>Profile</span>
 
-            </a>
-                
+                <a href="/profile" class="nav-link">
+                    👤
+                    <span>Profile</span>
+                </a>
 
             </div>
 
         </header>
 
-
-
         <!-- PAGE CONTENT -->
-
         <section class="page-content">
 
             {% block content %}
-
             {% endblock %}
 
         </section>
-
 
     </main>
 

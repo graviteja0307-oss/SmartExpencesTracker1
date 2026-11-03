@@ -1,9 +1,3 @@
-from openai import OpenAI
-import json
-
-
-client = OpenAI()
-
 
 def analyze_spending(
     total,
@@ -12,131 +6,104 @@ def analyze_spending(
     category_totals,
     budget_amount
 ):
-
     try:
+        total = float(total or 0)
+        monthly_total = float(monthly_total or 0)
+        previous_month_total = float(previous_month_total or 0)
+        budget_amount = float(budget_amount or 0)
 
         categories = []
 
-        for category in category_totals:
-
+        for item in (category_totals or []):
             categories.append({
-                "category": category["category"],
-                "total": float(category["total"])
+                "category": str(item.get("category", "Other")),
+                "total": float(item.get("total", 0) or 0)
             })
 
+        if categories:
+            highest = max(categories, key=lambda item: item["total"])
+            highest_category = highest["category"]
+            highest_amount = highest["total"]
+        else:
+            highest_category = "None"
+            highest_amount = 0
 
-        prompt = f"""
-You are a personal expense analysis assistant.
+        if monthly_total > previous_month_total:
+            difference = monthly_total - previous_month_total
+            percentage = (
+                difference / previous_month_total * 100
+                if previous_month_total > 0 else None
+            )
 
-Analyze the following user's financial spending data.
+            if percentage is not None:
+                trend = f"Spending increased by {percentage:.1f}% compared with last month."
+            else:
+                trend = f"Spending increased by ₹{difference:.2f} compared with last month."
 
-Total spending:
-₹{total}
+        elif monthly_total < previous_month_total:
+            difference = previous_month_total - monthly_total
+            percentage = (
+                difference / previous_month_total * 100
+                if previous_month_total > 0 else 0
+            )
+            trend = f"Spending decreased by {percentage:.1f}% compared with last month."
 
-This month's spending:
-₹{monthly_total}
+        else:
+            trend = "Spending is unchanged compared with last month."
 
-Previous month's spending:
-₹{previous_month_total}
+        if budget_amount <= 0:
+            budget_status = "No monthly budget has been set."
+        else:
+            remaining = budget_amount - monthly_total
 
-Monthly budget:
-₹{budget_amount}
+            if remaining > 0:
+                budget_status = (
+                    f"Within budget. ₹{remaining:.2f} remaining "
+                    f"out of ₹{budget_amount:.2f}."
+                )
+            elif remaining == 0:
+                budget_status = "The monthly budget has been fully used."
+            else:
+                budget_status = (
+                    f"Over budget by ₹{abs(remaining):.2f}."
+                )
 
-Spending by category:
-{json.dumps(categories)}
+        if budget_amount > 0 and monthly_total > budget_amount:
+            recommendation = (
+                "Reduce non-essential spending to bring expenses "
+                "within your monthly budget."
+            )
+        elif highest_amount > 0:
+            recommendation = (
+                f"Review your {highest_category} spending, currently "
+                f"₹{highest_amount:.2f}, to identify possible savings."
+            )
+        else:
+            recommendation = (
+                "Record your expenses regularly to identify spending patterns."
+            )
 
-
-Provide a concise analysis.
-
-Identify:
-
-1. Highest spending category
-2. Whether spending increased or decreased
-3. Budget situation
-4. One practical recommendation
-
-Do not provide investment advice.
-
-Return JSON with:
-
-category
-trend
-budget_status
-recommendation
-summary
-"""
-
-
-        response = client.responses.create(
-
-            model="gpt-5.6-luna",
-
-            input=prompt,
-
-            text={
-                "format": {
-                    "type": "json_schema",
-
-                    "name": "spending_analysis",
-
-                    "strict": True,
-
-                    "schema": {
-
-                        "type": "object",
-
-                        "properties": {
-
-                            "category": {
-                                "type": "string"
-                            },
-
-                            "trend": {
-                                "type": "string"
-                            },
-
-                            "budget_status": {
-                                "type": "string"
-                            },
-
-                            "recommendation": {
-                                "type": "string"
-                            },
-
-                            "summary": {
-                                "type": "string"
-                            }
-
-                        },
-
-                        "required": [
-                            "category",
-                            "trend",
-                            "budget_status",
-                            "recommendation",
-                            "summary"
-                        ],
-
-                        "additionalProperties": False
-                    }
-                }
-            }
+        summary = (
+            f"Total spending: ₹{total:.2f}. "
+            f"This month's spending: ₹{monthly_total:.2f}. "
+            f"Highest spending category: {highest_category}."
         )
 
+        return {
+            "category": highest_category,
+            "trend": trend,
+            "budget_status": budget_status,
+            "recommendation": recommendation,
+            "summary": summary
+        }
 
-        return json.loads(
-            response.output_text
-        )
-
-
-    except Exception as error:
-
-        print("AI Analyst Error:", error)
+    except (TypeError, ValueError, AttributeError) as error:
+        print("Spending Analysis Error:", error)
 
         return {
             "category": "Unknown",
             "trend": "Unable to determine",
             "budget_status": "Unable to determine",
-            "recommendation": "Continue tracking your expenses.",
-            "summary": "AI analysis is currently unavailable."
+            "recommendation": "Check your financial data and try again.",
+            "summary": "Spending analysis could not be completed."
         }
