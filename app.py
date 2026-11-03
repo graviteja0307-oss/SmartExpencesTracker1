@@ -246,7 +246,7 @@ def login():
             id,
             username,
             password_hash
-        FROM users
+        FROM public.users
         WHERE email = %s
         """,
         (email,)
